@@ -1,0 +1,6 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args: ['-c', 'docker build --build-arg="DOMAIN_NAME=${_DOMAIN_NAME}" --build-arg="IP_ADDRESS=${_IP_ADDRESS}" -t "gcr.io/${PROJECT_ID}/looker-proxy:latest" .']
+images:
+- 'gcr.io/${PROJECT_ID}/looker-proxy:latest'
