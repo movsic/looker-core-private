@@ -81,6 +81,7 @@ resource "google_looker_instance" "looker_instance" {
 #Currently adding custom looker domain is not supported by the terraform provider
 #null resource with change custom domain
 #https://cloud.google.com/sdk/gcloud/reference/looker/instances/update
+#https://github.com/GoogleCloudPlatform/magic-modules/pull/9936
 
 resource "null_resource" "looker_instance_add_custom_domain" {
   provisioner "local-exec" {
