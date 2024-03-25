@@ -59,90 +59,19 @@ resource "google_compute_region_health_check" "tcp_region_health_check" {
 # can be done via gcloud:
 #TODO try global
 #https://github.com/hashicorp/terraform-provider-google/issues/17000
-# resource "google_compute_region_network_endpoint_group" "network_endpoint_group" {
-#   project    = var.project_id
-#   name                  = "${var.prefix}-network-endpoint-group"
-#   network_endpoint_type = "INTERNET_IP_PORT"
-#   default_port          = "443"
-#   region = var.region
-# }
-
-resource "null_resource" "region_network_endpoint_group" {
-  #Local exec with gcloud due to the missing network_endpoint_type in google_compute_region_network_endpoint_group
-
-  triggers = {
-    prefix     = var.prefix
-    region     = var.region
-    network    = var.network
-    project_id = var.project_id
-  }
-
-  provisioner "local-exec" {
-    command = <<EOD
-gcloud compute network-endpoint-groups create ${self.triggers.prefix}-network-endpoint-group \
---default-port=443 \
---network-endpoint-type=internet-ip-port \
---region=${self.triggers.region} \
---network=${self.triggers.network} \
---project=${self.triggers.project_id} \
-EOD
-  }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<EOD
-gcloud compute network-endpoint-groups delete ${self.triggers.prefix}-network-endpoint-group \
---region=${self.triggers.region} \
---project=${self.triggers.project_id}
-EOD
-  }
-}
-
-data "google_compute_region_network_endpoint_group" "region_network_endpoint_group" {
+resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group" {
   project    = var.project_id
-  name       = "${var.prefix}-network-endpoint-group"
-  region     = var.region
-  depends_on = [null_resource.region_network_endpoint_group]
+  name                  = "${var.prefix}-network-endpoint-group"
+  network = var.network
+  network_endpoint_type = "INTERNET_IP_PORT"
+  region = var.region
 }
 
-# resource "google_compute_global_network_endpoint" "network_endpoint" {
-#   project    = var.project_id
-#    #todo
-#   global_network_endpoint_group = data.google_compute_region_network_endpoint_group.region_network_endpoint_group.id
-#   ip_address                    = data.external.git_ip_address.result.git_ip_address
-#    #todo
-#   port                          = "443" #data.google_compute_region_network_endpoint_group.region_network_endpoint_group.default_port
-# }
-
-resource "null_resource" "network_endpoint" {
-  #Local exec with gcloud due to the regional endpoint type not supporting ip in terraform
-  triggers = {
-    region_network_endpoint_group_id = data.google_compute_region_network_endpoint_group.region_network_endpoint_group.id
-    git_ip_address                   = data.external.git_ip_address.result.git_ip_address
-    region                           = var.region
-    project_id                       = var.project_id
-  }
-
-  provisioner "local-exec" {
-    command = <<EOD
-gcloud compute network-endpoint-groups update ${self.triggers.region_network_endpoint_group_id} \
---add-endpoint=ip=${self.triggers.git_ip_address},port=443 \
---region=${self.triggers.region} \
---project=${self.triggers.project_id}
-EOD
-  }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<EOD
-gcloud compute network-endpoint-groups update ${self.triggers.region_network_endpoint_group_id} \
---remove-endpoint=ip=${self.triggers.git_ip_address},port=443 \
---region=${self.triggers.region} \
---project=${self.triggers.project_id}
-EOD
-  }
-
-  depends_on = [null_resource.region_network_endpoint_group]
+resource "google_compute_global_network_endpoint" "network_endpoint" {
+  project    = var.project_id
+  global_network_endpoint_group = google_compute_region_network_endpoint_group.region_network_endpoint_group.id
+  ip_address                    = data.external.git_ip_address.result.git_ip_address
+  port                          = "443"
 }
 
 resource "google_compute_region_backend_service" "backend_service" {
@@ -155,8 +84,7 @@ resource "google_compute_region_backend_service" "backend_service" {
   timeout_sec           = 10
   health_checks         = [google_compute_region_health_check.tcp_region_health_check.id]
   backend {
-    #todo change data to resource 
-    group           = data.google_compute_region_network_endpoint_group.region_network_endpoint_group.id
+    group           = google_compute_region_network_endpoint_group.region_network_endpoint_group.id
     balancing_mode  = "UTILIZATION"
     capacity_scaler = 1.0
   }

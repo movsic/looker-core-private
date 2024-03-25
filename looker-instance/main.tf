@@ -69,6 +69,9 @@ resource "google_looker_instance" "looker_instance" {
     client_id     = var.oauth_client_id
     client_secret = var.oauth_client_secret
   }
+  custom_domain {
+    domain = var.looker_domain
+  }
 }
 
 # resource "google_kms_crypto_key_iam_member" "crypto_key" {
@@ -76,21 +79,3 @@ resource "google_looker_instance" "looker_instance" {
 #   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 #   member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-looker.iam.gserviceaccount.com"
 # }
-
-
-#Currently adding custom looker domain is not supported by the terraform provider
-#null resource with change custom domain
-#https://cloud.google.com/sdk/gcloud/reference/looker/instances/update
-#https://github.com/GoogleCloudPlatform/magic-modules/pull/9936
-
-resource "null_resource" "looker_instance_add_custom_domain" {
-  provisioner "local-exec" {
-    command = <<EOD
-gcloud looker instances update ${var.name} \
---region=${var.region} \
---custom-domain=${var.looker_domain} \
---project=${var.project_id}
-EOD
-  }
-  depends_on = [google_looker_instance.looker_instance]
-}

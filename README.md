@@ -32,10 +32,6 @@ Unfortunately as of now it is not possible to create OAuth authorization credent
 1. [Access to public Github repos over HTTPS for private Looker instance](https://docs.google.com/document/d/1YcokqVN7ktG73EirI57_111xKRtQckzTocVzZZ-Zs-s/edit?tab=t.0#heading=h.mi7dxo7e0yzg)(internal)
 
 # Missing terraform resources
-path: looker-proxy/git-proxy.tf:48
-terraform supports only SERVERLESS and PRIVATE_SERVICE_CONNECT network_endpoint_types for [region_network_endpoint_group](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network_endpoint_group)
-but INTERNET_IP_PORT is needed. 
-[Github issue](https://github.com/hashicorp/terraform-provider-google/issues/17000)
 
 path: looker-proxy/git-proxy.tf:108
 [google_compute_network_endpoint](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network_endpoint) is not supporting ip address of an external resource
@@ -44,10 +40,6 @@ path: looker-proxy/git-proxy.tf:202
 The nat endpoint-types must be ENDPOINT_TYPE_MANAGED_PROXY_LB
 [google_compute_router_nat](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_router_nat) Currently (5.11.0) the endpoint-types field is not available in google terraform provider
 [Github issue](https://github.com/hashicorp/terraform-provider-google/issues/17001)
-
-path: looker-instance/main.tf:85
-(google_looker_instance)[https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/looker_instance] Currently adding (custom looker domain)[https://cloud.google.com/looker/docs/looker-core-custom-domain] is not supported by the terraform provider
-[Github issue](https://github.com/GoogleCloudPlatform/magic-modules/pull/9936)
 
 # List needed permissions to apply terraform configuration:
 <todo>
