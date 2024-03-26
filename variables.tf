@@ -38,9 +38,9 @@ variable "oauth_client_secret" {
   description = ""
 }
 
-variable "git_domain_name" {
-  type        = string
-  description = ""
+variable "external_resources" {
+  type        = list(string)
+  description = "List of external services or resources outside of the instance's VPC network needed to be accessed by Looker Cloud Core"
 }
 
 # psc_consumer_project_id

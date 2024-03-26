@@ -53,4 +53,7 @@ The nat endpoint-types must be ENDPOINT_TYPE_MANAGED_PROXY_LB
 1. Switch from container registry to artifact registry
 1. Use [google module](https://registry.terraform.io/modules/GoogleCloudPlatform/lb-http/google/latest?tab=inputs) for creating lb
 1. Add (Looker Action Hub)[https://github.com/looker-open-source/actions]
+1. provide list od dns name to let looker get to them through nat
+1. push the state to the bucket + create the bucket
+1. variables description
 

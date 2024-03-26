@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-data "external" "git_ip_address" {
-  program = ["sh", "${path.module}/script.sh"]
+data "external" "ip_address" {
+  for_each = toset(var.external_resources)
+  program  = ["sh", "${path.module}/script.sh"]
   query = {
-    git_domain_name = "${var.git_domain_name}"
+    domain_name = "${each.key}"
   }
 }
 
 resource "google_compute_address" "address" {
+  for_each     = toset(var.external_resources)
   project      = var.project_id
   region       = var.region
-  name         = "${var.prefix}-address"
+  name         = "${replace(each.key, ".", "-")}-address"
   address_type = "INTERNAL"
   subnetwork   = var.subnetwork
 }
@@ -54,29 +56,28 @@ resource "google_compute_region_health_check" "tcp_region_health_check" {
 # todo can we split backends based on git url ?
 # todo check fqdn
 
-# Problem: terraform supports only SERVERLESS and PRIVATE_SERVICE_CONNECT network_endpoint_types for region_network_endpoint_group
-# but INTERNET_IP_PORT is needed. 
-# can be done via gcloud:
-#TODO try global
-#https://github.com/hashicorp/terraform-provider-google/issues/17000
-resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group" {
-  project    = var.project_id
-  name                  = "${var.prefix}-network-endpoint-group"
-  network = var.network
+resource "google_compute_region_network_endpoint_group" "network_endpoint_group" {
+  for_each              = toset(var.external_resources)
+  project               = var.project_id
+  name                  = "${replace(each.key, ".", "-")}-network-endpoint-group"
+  network               = var.network
   network_endpoint_type = "INTERNET_IP_PORT"
-  region = var.region
+  region                = var.region
 }
 
-resource "google_compute_global_network_endpoint" "network_endpoint" {
-  project    = var.project_id
-  global_network_endpoint_group = google_compute_region_network_endpoint_group.region_network_endpoint_group.id
-  ip_address                    = data.external.git_ip_address.result.git_ip_address
+resource "google_compute_region_network_endpoint" "network_endpoint" {
+  for_each                      = toset(var.external_resources)
+  project                       = var.project_id
+  region_network_endpoint_group = google_compute_region_network_endpoint_group.network_endpoint_group[each.key].id
+  ip_address                    = data.external.ip_address[each.key].result.ip_address
   port                          = "443"
+  region                        = var.region
 }
 
 resource "google_compute_region_backend_service" "backend_service" {
+  for_each              = toset(var.external_resources)
   project               = var.project_id
-  name                  = "${var.prefix}-git-backend-service"
+  name                  = "${replace(each.key, ".", "-")}-backend-service"
   region                = var.region
   protocol              = "TCP"
   port_name             = "tcp"
@@ -84,7 +85,7 @@ resource "google_compute_region_backend_service" "backend_service" {
   timeout_sec           = 10
   health_checks         = [google_compute_region_health_check.tcp_region_health_check.id]
   backend {
-    group           = google_compute_region_network_endpoint_group.region_network_endpoint_group.id
+    group           = google_compute_region_network_endpoint_group.network_endpoint_group[each.key].id
     balancing_mode  = "UTILIZATION"
     capacity_scaler = 1.0
   }
@@ -95,21 +96,23 @@ resource "google_compute_region_backend_service" "backend_service" {
 }
 
 resource "google_compute_region_target_tcp_proxy" "target_tcp_proxy" {
+  for_each        = toset(var.external_resources)
   project         = var.project_id
   region          = var.region
-  name            = "${var.prefix}-git-target-tcp-proxy"
-  backend_service = google_compute_region_backend_service.backend_service.id
+  name            = "${replace(each.key, ".", "-")}-target-tcp-proxy"
+  backend_service = google_compute_region_backend_service.backend_service[each.key].id
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule" {
+  for_each              = toset(var.external_resources)
   project               = var.project_id
-  name                  = "${var.prefix}-git-forwarding-rule"
+  name                  = "${replace(each.key, ".", "-")}-forwarding-rule"
   region                = var.region
   ip_protocol           = "TCP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   port_range            = "443"
-  target                = google_compute_region_target_tcp_proxy.target_tcp_proxy.id
-  ip_address            = google_compute_address.address.address
+  target                = google_compute_region_target_tcp_proxy.target_tcp_proxy[each.key].id
+  ip_address            = google_compute_address.address[each.key].address
 
   network    = var.network
   subnetwork = var.subnetwork
@@ -142,7 +145,7 @@ resource "google_compute_router" "router" {
 #   nat_ip_allocate_option             = "AUTO_ONLY"
 #   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 
-#   endpoint-types = ENDPOINT_TYPE_VM
+#   endpoint-types = ENDPOINT_TYPE_MANAGED_PROXY_LB
 
 #   log_config {
 #     enable = true

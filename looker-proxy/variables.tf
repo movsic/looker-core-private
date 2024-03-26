@@ -50,6 +50,6 @@ variable "looker_domain" {
   description = "Custom domain of the looker instance."
 }
 
-variable "git_domain_name" {
-  type = string
+variable "external_resources" {
+  type = list(string)
 }

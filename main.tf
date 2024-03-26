@@ -17,14 +17,14 @@ module "looker_instance" {
 }
 
 module "looker_proxy_vm" {
-  source          = "./looker-proxy"
-  project_id      = var.project_id
-  network         = module.vpc.network_id
-  subnetwork      = module.vpc.subnet_id
-  region          = var.region
-  looker_ip       = module.looker_instance.looker_ingress_private_ip
-  looker_domain   = var.looker_domain
-  git_domain_name = var.git_domain_name
+  source             = "./looker-proxy"
+  project_id         = var.project_id
+  network            = module.vpc.network_id
+  subnetwork         = module.vpc.subnet_id
+  region             = var.region
+  looker_ip          = module.looker_instance.looker_ingress_private_ip
+  looker_domain      = var.looker_domain
+  external_resources = var.external_resources
 }
 
 # module "looker_psc_producer" {

@@ -2,11 +2,11 @@
 
 set -e
 
-eval "$(jq -r '@sh "GIT_DOMAIN_NAME=\(.git_domain_name)"')"
+eval "$(jq -r '@sh "DOMAIN_NAME=\(.domain_name)"')"
 
-GIT_IP_ADDRESS=$(dig +short ${GIT_DOMAIN_NAME})
+IP_ADDRESS=$(dig +short ${DOMAIN_NAME})
 
 # Safely produce a JSON object containing the result value.
 # jq will ensure that the value is properly quoted
 # and escaped to produce a valid JSON string.
-jq -n --arg git_ip_address "$GIT_IP_ADDRESS" '{"git_ip_address":$git_ip_address}'
+jq -n --arg ip_address "$IP_ADDRESS" '{"ip_address":$ip_address}'
