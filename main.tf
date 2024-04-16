@@ -27,13 +27,13 @@ module "looker_proxy_vm" {
   external_resources = var.external_resources
 }
 
-# module "looker_psc_producer" {
-#   source                 = "./psc-producer"
-#   project_id             = var.project_id
-#   pcs_nat_subnetwork     = module.vpc.pcs_nat_subnet_id
-#   region                 = var.region
-#   looker_proxy_lb        = module.looker_proxy_vm.ilb_forwarding_rule_id
-# }
+module "looker_psc_producer" {
+  source                 = "./psc-producer"
+  project_id             = var.project_id
+  pcs_nat_subnetwork     = module.vpc.pcs_nat_subnet_id
+  region                 = var.region
+  looker_proxy_lb        = module.looker_proxy_vm.ilb_forwarding_rule_id
+}
 
 module "looker_test_vm" {
   source     = "./test-vms"

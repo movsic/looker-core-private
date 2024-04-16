@@ -21,12 +21,12 @@ variable "project_id" {
 
 variable "prefix" {
   type        = string
-  description = ""
+  description = "App name. Will be used as name prefix for all created resources."
   default     = "looker"
 }
 
 variable "region" {
-  description = ""
+  description = "Region where created resources is hosted."
   type        = string
 }
 

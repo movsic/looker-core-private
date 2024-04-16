@@ -129,74 +129,15 @@ resource "google_compute_router" "router" {
   }
 }
 
-#The nat endpoint-types must be ENDPOINT_TYPE_MANAGED_PROXY_LB
-#Don't use ENDPOINT_TYPE_VM while for this scenario the type MANAGED_PROXY_LB is necessary 
-#(otherwise the health checks originated by the proxy network load balancer will never be NATed with a public source IP 
-#and will never reach the target of the regional internet NEG). 
-#Currently (5.11.0) the endpoint-types field is not available in terraform provider.
-
-#https://github.com/hashicorp/terraform-provider-google/issues/17001
-
-# resource "google_compute_router_nat" "nat_lb" {
-#   project                            = var.project_id
-#   name                               = "${var.prefix}-lb-router-nat"
-#   router                             = google_compute_router.router.name
-#   region                             = google_compute_router.router.region
-#   nat_ip_allocate_option             = "AUTO_ONLY"
-#   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-
-#   endpoint-types = ENDPOINT_TYPE_MANAGED_PROXY_LB
-
-#   log_config {
-#     enable = true
-#     filter = "ERRORS_ONLY"
-#   }
-# }
-
-resource "null_resource" "nat_lb" {
-  #Local exec with gcloud due to the missing endpoint-types in google_compute_router_nat
-  triggers = {
-    compute_router_name   = google_compute_router.router.name
-    compute_router_region = google_compute_router.router.region
-    project_id            = var.project_id
-    prefix                = var.prefix
-  }
-
-  provisioner "local-exec" {
-    command = <<EOD
-gcloud compute routers nats create ${self.triggers.prefix}-lb-router-nat \
---router=${self.triggers.compute_router_name} \
---endpoint-types=ENDPOINT_TYPE_MANAGED_PROXY_LB \
---region=${self.triggers.compute_router_region} \
---project=${self.triggers.project_id} \
---auto-allocate-nat-external-ips \
---nat-all-subnet-ip-ranges \
---enable-logging \
---log-filter=ERRORS_ONLY
-EOD
-  }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<EOD
-gcloud compute routers nats delete ${self.triggers.prefix}-lb-router-nat \
---region=${self.triggers.compute_router_region} \
---project=${self.triggers.project_id}
-EOD
-  }
-  depends_on = [google_compute_router.router]
-}
-
-#this one is created for the vms
-resource "google_compute_router_nat" "nat_vm" {
+resource "google_compute_router_nat" "router_nat" {
   project                            = var.project_id
-  name                               = "${var.prefix}-vm-router-nat"
+  name                               = "${var.prefix}-router-nat"
   router                             = google_compute_router.router.name
   region                             = google_compute_router.router.region
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 
-  #endpoint-types = ENDPOINT_TYPE_VM
+  endpoint_types = ["ENDPOINT_TYPE_VM","ENDPOINT_TYPE_LB"]
 
   log_config {
     enable = true

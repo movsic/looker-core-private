@@ -1,6 +1,6 @@
 resource "google_dns_response_policy" "dns_response_policy" {
   project              = var.project_id
-  response_policy_name = "looker-custom-domain"
+  response_policy_name = "looker-response-policy"
   networks {
     network_url = var.network
   }
@@ -40,7 +40,6 @@ resource "google_dns_response_policy_rule" "dns_response_policy_rule" {
   }
 }
 
-# Error waiting for Create Service Networking Peered DNS Domain: Error code 13, message: An internal exception occurred.
 resource "google_service_networking_peered_dns_domain" "peered_dns_domain" {
   for_each   = toset(var.external_resources)
   project    = var.project_id

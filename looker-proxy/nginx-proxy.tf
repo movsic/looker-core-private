@@ -111,11 +111,9 @@ resource "google_service_account" "service_account" {
   account_id = "${var.prefix}-sa"
 }
 
-resource "google_project_iam_binding" "cloud_run_sa_iam" {
+resource "google_project_iam_member" "cloud_run_sa_iam" {
   for_each = toset(concat(local.looker-proxy-sa-roles))
   project  = var.project_id
   role     = each.value
-  members = [
-    "serviceAccount:${google_service_account.service_account.email}"
-  ]
+  member = "serviceAccount:${google_service_account.service_account.email}"
 }

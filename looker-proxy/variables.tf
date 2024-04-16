@@ -52,4 +52,5 @@ variable "looker_domain" {
 
 variable "external_resources" {
   type = list(string)
+  description = "List of external services or resources outside of the instance's VPC network that Looker Cloud Core needs to access."
 }

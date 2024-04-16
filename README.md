@@ -28,12 +28,12 @@ Follow (those steps)[https://cloud.google.com/looker/docs/looker-core-create-oau
 Unfortunately as of now it is not possible to create OAuth authorization credentials via terraform
 
 # Reference links
-1. [Set up nginx proxy in fron of your private Looker instance](https://cloud.google.com/looker/docs/looker-core-private-ip-config#grant_public_access_to_private_ip_instances)
+1. [Set up nginx proxy in front of your private Looker instance](https://cloud.google.com/looker/docs/looker-core-private-ip-config#grant_public_access_to_private_ip_instances)
 1. [Access to public Github repos over HTTPS for private Looker instance](https://docs.google.com/document/d/1YcokqVN7ktG73EirI57_111xKRtQckzTocVzZZ-Zs-s/edit?tab=t.0#heading=h.mi7dxo7e0yzg)(internal)
 
 # Missing terraform resources
 
-path: looker-proxy/git-proxy.tf:108
+path: looker-proxy/git-proxy.tf
 [google_compute_network_endpoint](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network_endpoint) is not supporting ip address of an external resource
 
 path: looker-proxy/git-proxy.tf:202
@@ -53,7 +53,6 @@ The nat endpoint-types must be ENDPOINT_TYPE_MANAGED_PROXY_LB
 1. Switch from container registry to artifact registry
 1. Use [google module](https://registry.terraform.io/modules/GoogleCloudPlatform/lb-http/google/latest?tab=inputs) for creating lb
 1. Add (Looker Action Hub)[https://github.com/looker-open-source/actions]
-1. provide list od dns name to let looker get to them through nat
 1. push the state to the bucket + create the bucket
-1. variables description
+1. rechck resource namings
 

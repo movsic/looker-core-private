@@ -20,4 +20,5 @@ variable "region" {
 
 variable "psc_producer" {
   type = string
+  description = "The target service url used to set up private service connection."
 }
