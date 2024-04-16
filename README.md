@@ -36,11 +36,6 @@ Unfortunately as of now it is not possible to create OAuth authorization credent
 path: looker-proxy/git-proxy.tf
 [google_compute_network_endpoint](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network_endpoint) is not supporting ip address of an external resource
 
-path: looker-proxy/git-proxy.tf:202
-The nat endpoint-types must be ENDPOINT_TYPE_MANAGED_PROXY_LB
-[google_compute_router_nat](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_router_nat) Currently (5.11.0) the endpoint-types field is not available in google terraform provider
-[Github issue](https://github.com/hashicorp/terraform-provider-google/issues/17001)
-
 # List needed permissions to apply terraform configuration:
 <todo>
 
@@ -50,7 +45,7 @@ The nat endpoint-types must be ENDPOINT_TYPE_MANAGED_PROXY_LB
 # TODO:
 1. Move git-proxy to separate module
 1. Generate looker sa with bq permissions as a part of terraform 
-1. Switch from container registry to artifact registry
+1. Switch from container registry to artifact registry (+create artifact registry)
 1. Use [google module](https://registry.terraform.io/modules/GoogleCloudPlatform/lb-http/google/latest?tab=inputs) for creating lb
 1. Add (Looker Action Hub)[https://github.com/looker-open-source/actions]
 1. push the state to the bucket + create the bucket
