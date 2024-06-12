@@ -19,9 +19,9 @@ module "looker_instance" {
 module "looker_proxy_vm" {
   source             = "./looker-proxy"
   project_id         = var.project_id
+  region             = var.region
   network            = module.vpc.network_id
   subnetwork         = module.vpc.subnet_id
-  region             = var.region
   looker_ip          = module.looker_instance.looker_ingress_private_ip
   looker_domain      = var.looker_domain
   external_resources = var.external_resources
@@ -30,8 +30,8 @@ module "looker_proxy_vm" {
 module "looker_psc_producer" {
   source                 = "./psc-producer"
   project_id             = var.project_id
-  pcs_nat_subnetwork     = module.vpc.pcs_nat_subnet_id
   region                 = var.region
+  pcs_nat_subnetwork     = module.vpc.pcs_nat_subnet_id
   looker_proxy_lb        = module.looker_proxy_vm.ilb_forwarding_rule_id
 }
 

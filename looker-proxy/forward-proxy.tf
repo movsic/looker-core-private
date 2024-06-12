@@ -53,8 +53,6 @@ resource "google_compute_region_health_check" "tcp_region_health_check" {
 #in order to attract the traffic from the Looker Core instance. 
 #Below the error log message with an  INTERNET_FQDN_PORT setup.
 #proxy_status: destanation_unavailable
-# todo can we split backends based on git url ?
-# todo check fqdn
 
 resource "google_compute_region_network_endpoint_group" "network_endpoint_group" {
   for_each              = toset(var.external_resources)

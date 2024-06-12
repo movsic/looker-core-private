@@ -41,14 +41,12 @@ variable "edition" {
 
 variable "oauth_client_id" {
   type = string
-  # todo
-  description = "OAuth app client id that will allow users to authenticate and access the instance"
+  description = "OAuth app client id that will allow users to authenticate and access the instance."
 }
 
 variable "oauth_client_secret" {
   type = string
-  # todo
-  description = "OAuth app secret that will allow users to authenticate and access the instance"
+  description = "OAuth app secret that will allow users to authenticate and access the instance."
 }
 
 variable "looker_domain" {

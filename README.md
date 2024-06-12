@@ -17,8 +17,8 @@
 1. psc-consumer
     1. lb pointing to the psc producer
 1. git-proxy
-    1. dns configuration to point to the external git repository
-    1. lb to forward requests to external git repository
+    1. dns configuration to point to the external resources
+    1. lb to forward requests to external resources
 1. test-vms
     1. linux and windows vms deployed to the looker vpc to test connectivity
 
@@ -31,12 +31,7 @@ Unfortunately as of now it is not possible to create OAuth authorization credent
 1. [Set up nginx proxy in front of your private Looker instance](https://cloud.google.com/looker/docs/looker-core-private-ip-config#grant_public_access_to_private_ip_instances)
 1. [Access to public Github repos over HTTPS for private Looker instance](https://docs.google.com/document/d/1YcokqVN7ktG73EirI57_111xKRtQckzTocVzZZ-Zs-s/edit?tab=t.0#heading=h.mi7dxo7e0yzg)(internal)
 
-# Missing terraform resources
-
-path: looker-proxy/git-proxy.tf
-[google_compute_network_endpoint](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network_endpoint) is not supporting ip address of an external resource
-
-# List needed permissions to apply terraform configuration:
+# List needed permissions to deploy terraform configuration:
 <todo>
 
 # List of required APIs:
